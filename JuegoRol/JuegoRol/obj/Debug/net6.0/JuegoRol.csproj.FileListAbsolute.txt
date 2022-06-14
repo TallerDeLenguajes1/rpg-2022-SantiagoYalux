@@ -1,0 +1,15 @@
+C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\bin\Debug\net6.0\JuegoRol.exe
+C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\bin\Debug\net6.0\JuegoRol.deps.json
+C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\bin\Debug\net6.0\JuegoRol.runtimeconfig.json
+C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\bin\Debug\net6.0\JuegoRol.dll
+C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\bin\Debug\net6.0\JuegoRol.pdb
+C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\obj\Debug\net6.0\JuegoRol.csproj.AssemblyReference.cache
+C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\obj\Debug\net6.0\JuegoRol.GeneratedMSBuildEditorConfig.editorconfig
+C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\obj\Debug\net6.0\JuegoRol.AssemblyInfoInputs.cache
+C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\obj\Debug\net6.0\JuegoRol.AssemblyInfo.cs
+C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\obj\Debug\net6.0\JuegoRol.csproj.CoreCompileInputs.cache
+C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\obj\Debug\net6.0\JuegoRol.dll
+C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\obj\Debug\net6.0\refint\JuegoRol.dll
+C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\obj\Debug\net6.0\JuegoRol.pdb
+C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\obj\Debug\net6.0\JuegoRol.genruntimeconfig.cache
+C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\obj\Debug\net6.0\ref\JuegoRol.dll
