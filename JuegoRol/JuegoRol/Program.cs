@@ -1,46 +1,101 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿
 
 
+string pathGanadoresCsv = @"C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\Archivos\ganadores.csv";
 juego();
 
 void juego()
 {
-    List<Personaje> Personajes = new List<Personaje>();
-    for (int x = 0; x < 8; x++)
+
+    //Si el archivo no existe lo creamos
+    if (!File.Exists(pathGanadoresCsv))
     {
-        /*Personaje personaje = new Personaje();
-        Personajes.Add(personaje);*/
+        File.Create(pathGanadoresCsv);
     }
 
-    Personaje p1 = new Personaje();
-    Personaje p2 = new Personaje();
+    Random random = new Random();
+    Personaje p1;
+    Personaje p2;
+    string[] newData = new string[1];
+    int indexPrimerJugador = 0;
+    int indexSegundoJugador = 0;
 
-    Combate(ref p1, ref p2);
+    List<Personaje> Personajes = new List<Personaje>();
+
+    for (int x = 0; x < 8; x++)
+    {
+        Personaje personaje = new Personaje();
+        Personajes.Add(personaje);
+    }
+
+
+    do
+    {
+        indexPrimerJugador = random.Next(Personajes.Count);
+        do
+        {
+            indexSegundoJugador = random.Next(Personajes.Count);
+
+        } while (indexSegundoJugador == indexPrimerJugador);
+
+        p1 = Personajes.ElementAt(indexPrimerJugador);
+        p2 = Personajes.ElementAt(indexSegundoJugador);
+
+        Combate(ref p1, ref p2, ref Personajes);
+
+    } while (Personajes.Count > 1);
+
+    Console.WriteLine("\n");
+    Console.WriteLine("-------------------------------------------------------");
+    Console.WriteLine($"GANADOR DEL TORNEO = {Personajes.First().DATOS.NOMBRE}");
+    Personajes.First().MostrarDatos();
+    newData[0] = $"GANADOR DEL TORNEO = {Personajes.First().DATOS.NOMBRE}({Personajes.First().DATOS.TIPO}), FECHA {DateTime.Now}";
+    File.AppendAllLines(pathGanadoresCsv, newData);
 }
 
-void Combate(ref Personaje p1, ref Personaje p2)
+void Combate(ref Personaje p1, ref Personaje p2, ref List<Personaje> personajes)
 {
-    Console.WriteLine("Empieza la pelea");
+    //
+    string[] newData = new string[1];
+
+    Console.WriteLine($"\n//////{p1.DATOS.NOMBRE} VS {p2.DATOS.NOMBRE}///////");
+    //Realizamos el combate, el que pierda será eliminado de la lista
+    Console.WriteLine("* Empieza la pelea *");
     for (int i = 0; i < 3; i++)
     {
-        Console.WriteLine($"Ronda {i+1}");
         p1.Ataque(ref p2);
         p2.Ataque(ref p1);
     }
 
-    if(p1.DATOS.SALUD > p2.DATOS.SALUD)
+    if (p1.DATOS.SALUD > p2.DATOS.SALUD)
     {
         Console.WriteLine($"-----El ganador es {p1.DATOS.NOMBRE}-----");
-        p1.MostrarDatos();
+        p1.CARACTERISTICAS.FUERZA += 2;
+
+
+        personajes.Remove(p2);
+        newData[0] = $"{p1.DATOS.NOMBRE} vs {p2.DATOS.NOMBRE}// GANADOR = {p1.DATOS.NOMBRE}";
+        File.AppendAllLines(pathGanadoresCsv, newData);
+    }
+    else if (p1.DATOS.SALUD < p2.DATOS.SALUD)
+    {
+        Console.WriteLine($"-----El ganador es {p2.DATOS.NOMBRE}-----");
+        p2.CARACTERISTICAS.FUERZA += 2;
+
+        personajes.Remove(p1);
+        newData[0] = $"{p2.DATOS.NOMBRE} vs {p1.DATOS.NOMBRE}// GANADOR = {p2.DATOS.NOMBRE}";
+        File.AppendAllLines(pathGanadoresCsv, newData);
     }
     else
     {
-        Console.WriteLine($"-----El ganador es {p2.DATOS.NOMBRE}-----");
-        p2.MostrarDatos();
+        Console.WriteLine("--------Empate--------");
     }
+    Console.WriteLine("\n");
+
 }
 class Personaje
 {
+
     private Caracteristicas caracteristicas;
     private Datos datos;
 
@@ -55,18 +110,20 @@ class Personaje
 
 
     //Habilidades del personaje
-    public int Ataque(ref Personaje Enemigo)
+    public void Ataque(ref Personaje Enemigo)
     {
         Random rnd = new Random();
-        int poderDisparo = CARACTERISTICAS.DESTREZA * CARACTERISTICAS.FUERZA * Enemigo.CARACTERISTICAS.NIVEL;
-        int EfectividadDisparo = rnd.Next(1, 100);
+        double poderDisparo = CARACTERISTICAS.DESTREZA * CARACTERISTICAS.FUERZA * CARACTERISTICAS.NIVEL;
+        double EfectividadDisparo = ((double)rnd.Next(1, 100)) / 100;
+        double valorAtaque = poderDisparo * EfectividadDisparo;
+        double poderDefensa = Enemigo.CARACTERISTICAS.ARMADURA * Enemigo.CARACTERISTICAS.VELOCIDAD;
+        double MaximoDaño = 5000;
+        double dañoProvocado = (((valorAtaque * EfectividadDisparo) - poderDefensa) / MaximoDaño) * 100;
 
-        int valorAtaque = poderDisparo * EfectividadDisparo;
-        return valorAtaque;
-    }
-    public void Defensa()
-    {
-        DATOS.SALUD = CARACTERISTICAS.ARMADURA * CARACTERISTICAS.VELOCIDAD;
+        if (dañoProvocado < 1)
+            dañoProvocado = 1;
+
+        Enemigo.DATOS.SALUD -= (int)dañoProvocado;
     }
 
 
@@ -74,7 +131,6 @@ class Personaje
     {
         Console.WriteLine("--------Datos Personaje--------");
         Console.WriteLine("Nombre: " + DATOS.NOMBRE);
-        Console.WriteLine("Apodo: " + DATOS.APODO);
         Console.WriteLine("Tipo " + DATOS.TIPO.ToString());
         Console.WriteLine("Fecha Nacimiento: " + DATOS.FECHANACIMIENTO.ToString());
         Console.WriteLine("Edad: " + DATOS.EDAD.ToString());
@@ -109,15 +165,13 @@ class Caracteristicas
     public Caracteristicas()
     {
         Random rnd = new Random();
-        Console.WriteLine("---------------Cargamos las caracteristicas------------");
 
-        VELOCIDAD = rnd.Next(1, 10);
-        DESTREZA = rnd.Next(1, 5);
-        FUERZA = rnd.Next(1, 10);
-        NIVEL = rnd.Next(1, 10);
-        ARMADURA = rnd.Next(1, 10);
+        VELOCIDAD = rnd.Next(1, 11);
+        DESTREZA = rnd.Next(1, 6);
+        FUERZA = rnd.Next(1, 11);
+        NIVEL = rnd.Next(1, 11);
+        ARMADURA = rnd.Next(1, 11);
 
-        Console.WriteLine("-------------------------------------------------------");
     }
 
 }
@@ -127,14 +181,12 @@ class Datos
     //Datos
     private string tipo;
     private string nombre;
-    private string apodo;
     private DateTime fechaNacimiento;
     private int edad; //Entre 0 a 300
     private int salud;
 
     public string TIPO { get => tipo; set => tipo = value; }
     public string NOMBRE { get => nombre; set => nombre = value; }
-    public string APODO { get => apodo; set => apodo = value; }
     public DateTime FECHANACIMIENTO { get => fechaNacimiento; set => fechaNacimiento = value; }
     public int EDAD { get => edad; set => edad = value; }
     public int SALUD { get => salud; set => salud = value; }
@@ -143,33 +195,131 @@ class Datos
     {
         Random rnd = new Random();
 
-        Console.WriteLine("--------------Cargamos los datos-------------");
 
-        Console.WriteLine("Ingresa el tipo");
-        TIPO = Console.ReadLine();
+        TIPO = Enum.GetName(typeof(TipoPersonaje), rnd.Next(1, Enum.GetNames(typeof(TipoPersonaje)).Length));
 
-        Console.WriteLine("Ingresa el nombre");
-        NOMBRE = Console.ReadLine();
+        NOMBRE = Enum.GetName(typeof(Nombres), rnd.Next(1, Enum.GetNames(typeof(Nombres)).Length));
 
-        Console.WriteLine("Ingresa el apodo");
-        APODO = Console.ReadLine();
-
-        Console.WriteLine("Ingresa la fecha nacimiento");
         FECHANACIMIENTO = DateTime.Now;
 
-        Console.WriteLine("Ingresa la edad");
         EDAD = rnd.Next(0, 300);
 
         SALUD = 100;
 
-        Console.WriteLine("---------------------------------------------");
     }
 }
 
-public enum Tipo
+public enum TipoPersonaje
 {
-    Arquero = 1,
-    Guerrero = 2,
-    Valkiria = 3,
-    Vikingo = 4,
+    Arquero,
+    Guerrero,
+    Valkiria,
+    Vikingo
+}
+
+public enum Nombres
+{
+    Santiago,
+    Sergio,
+    Josefina,
+    Agustina,
+    Mariana,
+    Messi,
+    Roberto,
+    LuisMiguel,
+    Amets,
+    Amaro,
+    Aquiles,
+    Algimantas,
+    Alpidio,
+    Amrane,
+    Anish,
+    Arián,
+    Ayun,
+    Azariel,
+    Bagrat,
+    Bencomo,
+    Bertino,
+    Candi,
+    Cesc,
+    Cirino,
+    Crisólogo,
+    Cruz,
+    Danilo,
+    Dareck,
+    Dariel,
+    Darin,
+    Delmiro,
+    Damen,
+    Dilan,
+    Dipa,
+    Doménico,
+    Drago,
+    Edivaldo,
+    Elvis,
+    Elyan,
+    Emeric,
+    Engracio,
+    Ensa,
+    Eñaut,
+    Eleazar,
+    Eros,
+    Eufemio,
+    Feiyang,
+    Fiorenzo,
+    Foudil,
+    Galo,
+    Gastón,
+    Giulio,
+    Gautam,
+    Gentil,
+    Gianni,
+    Gianluca,
+    Giorgio,
+    Gourav,
+    Grober,
+    Guido,
+    Guifre,
+    Guim,
+    Hermes,
+    Inge,
+    Irai,
+    Iraitz,
+    Iyad,
+    Iyán,
+    Joao,
+    Jun,
+    Khaled,
+    Leónidas,
+    Lier,
+    Lionel,
+    Lisandro,
+    Lucián,
+    Mael,
+    Misael,
+    Moad,
+    Munir,
+    Nael,
+    Najim,
+    Neo,
+    Neil,
+    Nikita,
+    Nilo,
+    Otto,
+    Pep,
+    Policarpo,
+    Radu,
+    Ramsés,
+    Rómulo,
+    Roy,
+    Severo,
+    Sidi,
+    Simeón,
+    Taha,
+    Tao,
+    Vadim,
+    Vincenzo,
+    Zaid,
+    Zigor,
+    Zouhair,
 }
