@@ -1,7 +1,17 @@
 ﻿
 
 
+using System.Text.Json;
+
 string pathGanadoresCsv = @"C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\Archivos\ganadores.csv";
+string pathJugadoresJson = @"C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\Archivos\Jugadores.json";
+Random random = new Random();
+Personaje p1;
+Personaje p2;
+string[] newData = new string[1];
+int indexPrimerJugador = 0;
+int indexSegundoJugador = 0;
+
 juego();
 
 void juego()
@@ -13,44 +23,41 @@ void juego()
         File.Create(pathGanadoresCsv);
     }
 
-    Random random = new Random();
-    Personaje p1;
-    Personaje p2;
-    string[] newData = new string[1];
-    int indexPrimerJugador = 0;
-    int indexSegundoJugador = 0;
+    List<Personaje> Personajes = CrearPersonajes();
 
-    List<Personaje> Personajes = new List<Personaje>();
 
-    for (int x = 0; x < 8; x++)
-    {
-        Personaje personaje = new Personaje();
-        Personajes.Add(personaje);
-    }
-
+    ConsoleKeyInfo op;
+    Menu miMenu = new Menu();
+    miMenu.DibujarMenu();
 
     do
     {
-        indexPrimerJugador = random.Next(Personajes.Count);
-        do
+        miMenu.DibujarMenu();
+        op = Console.ReadKey();
+        switch (op.Key)
         {
-            indexSegundoJugador = random.Next(Personajes.Count);
+            case ConsoleKey.A:
+                Console.Clear();
+                MostrarGanadores();
+                Console.ReadKey();
+                break;
+            case ConsoleKey.B:
+                Console.Clear();
+                CargarPersonajesAnteriores(ref Personajes);
 
-        } while (indexSegundoJugador == indexPrimerJugador);
+                Console.ReadKey();
+                break;
+            case ConsoleKey.C:
+                Console.Clear();
+                IniciarCombate(ref Personajes);
+                Personajes = CrearPersonajes();
+                Console.WriteLine("Nuevos Personajes Listos para pelear");
+                Console.ReadKey();
+                break;
 
-        p1 = Personajes.ElementAt(indexPrimerJugador);
-        p2 = Personajes.ElementAt(indexSegundoJugador);
+        }
+    } while (op.Key != ConsoleKey.F);
 
-        Combate(ref p1, ref p2, ref Personajes);
-
-    } while (Personajes.Count > 1);
-
-    Console.WriteLine("\n");
-    Console.WriteLine("-------------------------------------------------------");
-    Console.WriteLine($"GANADOR DEL TORNEO = {Personajes.First().DATOS.NOMBRE}");
-    Personajes.First().MostrarDatos();
-    newData[0] = $"GANADOR DEL TORNEO = {Personajes.First().DATOS.NOMBRE}({Personajes.First().DATOS.TIPO}), FECHA {DateTime.Now}";
-    File.AppendAllLines(pathGanadoresCsv, newData);
 }
 
 void Combate(ref Personaje p1, ref Personaje p2, ref List<Personaje> personajes)
@@ -93,6 +100,88 @@ void Combate(ref Personaje p1, ref Personaje p2, ref List<Personaje> personajes)
     Console.WriteLine("\n");
 
 }
+
+void CargarPersonajesAnteriores(ref List<Personaje> Personajes)
+{
+    int eleccion = 0;
+
+
+    if (!File.Exists(pathJugadoresJson))
+        File.Create(pathJugadoresJson);
+
+    var datosJugadoresJson = File.ReadAllText(pathJugadoresJson);
+    if (datosJugadoresJson.Length > 0)
+    {
+        Console.WriteLine("Tienes datos de jugadores, ¿quieres cargarlos? 1-si 2-no");
+        eleccion = int.Parse(Console.ReadLine());
+
+        if (eleccion == 1)
+            Personajes = JsonSerializer.Deserialize<List<Personaje>>(datosJugadoresJson);
+        else
+            Console.WriteLine("Elegiste no cambiar a los jugadores anteriores, los nuevos darán batalla");
+    }
+    else
+    {
+        string JsonString = JsonSerializer.Serialize(Personajes);
+        File.WriteAllText(pathJugadoresJson, JsonString);
+        Console.WriteLine("Cargamos los personajes actuales, para en un futuro usarlos!");
+    }
+}
+
+void MostrarGanadores()
+{
+    string ganadoresString = File.ReadAllText(pathGanadoresCsv);
+    if (ganadoresString.Length > 0)
+    {
+        Console.WriteLine(ganadoresString);
+    }
+    else
+        Console.WriteLine("No hay ganadores para mostrar");
+
+}
+
+void IniciarCombate(ref List<Personaje> Personajes)
+{
+    do
+    {
+        indexPrimerJugador = random.Next(Personajes.Count);
+        do
+        {
+            indexSegundoJugador = random.Next(Personajes.Count);
+
+        } while (indexSegundoJugador == indexPrimerJugador);
+
+        p1 = Personajes.ElementAt(indexPrimerJugador);
+        p2 = Personajes.ElementAt(indexSegundoJugador);
+
+        Combate(ref p1, ref p2, ref Personajes);
+
+    } while (Personajes.Count > 1);
+
+    Console.WriteLine("\n");
+    Console.WriteLine("-------------------------------------------------------");
+    Console.WriteLine($"GANADOR DEL TORNEO = {Personajes.First().DATOS.NOMBRE}");
+    Personajes.First().MostrarDatos();
+    newData[0] = $"GANADOR DEL TORNEO = {Personajes.First().DATOS.NOMBRE}({Personajes.First().DATOS.TIPO}), FECHA {DateTime.Now}";
+    File.AppendAllLines(pathGanadoresCsv, newData);
+
+    
+}
+
+List<Personaje> CrearPersonajes()
+{
+    List<Personaje> retorno = new List<Personaje>();
+    
+    for (int x = 0; x < 8; x++)
+    {
+        Personaje personaje = new Personaje();
+        retorno.Add(personaje);
+    }
+
+    return retorno;
+}
+
+
 class Personaje
 {
 
@@ -147,6 +236,7 @@ class Personaje
 
 }
 
+
 class Caracteristicas
 {
     //Caracteristicas 
@@ -200,6 +290,7 @@ class Datos
 
         NOMBRE = Enum.GetName(typeof(Nombres), rnd.Next(1, Enum.GetNames(typeof(Nombres)).Length));
 
+
         FECHANACIMIENTO = DateTime.Now;
 
         EDAD = rnd.Next(0, 300);
@@ -207,6 +298,22 @@ class Datos
         SALUD = 100;
 
     }
+}
+
+class Menu
+{
+    #region Metodos
+    public void DibujarMenu()
+    {
+        Console.Clear();
+        Console.WriteLine("*************************");
+        Console.WriteLine("A- Mostrar Ganadores \n");
+        Console.WriteLine("B- Cargar jugadores json\n");
+        Console.WriteLine("C- Iniciar combate\n");
+        Console.WriteLine("F- Salir\n");
+        Console.WriteLine("*************************");
+    }
+    #endregion
 }
 
 public enum TipoPersonaje
