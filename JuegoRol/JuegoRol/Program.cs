@@ -1,11 +1,14 @@
 ﻿
 
 
+using System.Net;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 string pathGanadoresCsv = @"C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\Archivos\ganadores.csv";
 string pathJugadoresJson = @"C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\Archivos\Jugadores.json";
 Random random = new Random();
+
 Personaje p1;
 Personaje p2;
 string[] newData = new string[1];
@@ -165,22 +168,60 @@ void IniciarCombate(ref List<Personaje> Personajes)
     newData[0] = $"GANADOR DEL TORNEO = {Personajes.First().DATOS.NOMBRE}({Personajes.First().DATOS.TIPO}), FECHA {DateTime.Now}";
     File.AppendAllLines(pathGanadoresCsv, newData);
 
-    
+
 }
 
 List<Personaje> CrearPersonajes()
 {
     List<Personaje> retorno = new List<Personaje>();
-    
+
     for (int x = 0; x < 8; x++)
     {
-        Personaje personaje = new Personaje();
+        Personaje personaje = new Personaje(RecuperarNombre());
         retorno.Add(personaje);
     }
 
     return retorno;
 }
 
+string RecuperarNombre()
+{
+    string retorno = "";
+    Nombre nombre = new Nombre();
+    string urlApiNombre = @"https://random-names-api.herokuapp.com/random";
+    var Request = (HttpWebRequest)WebRequest.Create(urlApiNombre);
+
+    Request.Method = "GET";
+    Request.ContentType = "application/json";
+    Request.Accept = "application/json";
+
+    using (WebResponse response = Request.GetResponse())
+    {
+        using (Stream strStream = response.GetResponseStream())
+        {
+            if (strStream != null)
+            {
+                using (StreamReader objReader = new StreamReader(strStream))
+                {
+                    string jsonReturn = objReader.ReadToEnd();
+
+                    try
+                    {
+                        nombre = JsonSerializer.Deserialize<Nombre>(jsonReturn);
+                        retorno = nombre.Body.Name;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Hubo un error " + e.Message);
+                        throw;
+                    }
+                }
+            }
+        }
+    }
+
+    return retorno;
+}
 
 class Personaje
 {
@@ -191,10 +232,10 @@ class Personaje
     public Caracteristicas CARACTERISTICAS { get => caracteristicas; set => caracteristicas = value; }
     public Datos DATOS { get => datos; set => datos = value; }
 
-    public Personaje()
+    public Personaje(string nombre)
     {
         CARACTERISTICAS = new Caracteristicas();
-        DATOS = new Datos();
+        DATOS = new Datos(nombre);
     }
 
 
@@ -235,7 +276,6 @@ class Personaje
     }
 
 }
-
 
 class Caracteristicas
 {
@@ -281,14 +321,15 @@ class Datos
     public int EDAD { get => edad; set => edad = value; }
     public int SALUD { get => salud; set => salud = value; }
 
-    public Datos()
+    public Datos(string nombre)
     {
         Random rnd = new Random();
 
 
         TIPO = Enum.GetName(typeof(TipoPersonaje), rnd.Next(1, Enum.GetNames(typeof(TipoPersonaje)).Length));
 
-        NOMBRE = Enum.GetName(typeof(Nombres), rnd.Next(1, Enum.GetNames(typeof(Nombres)).Length));
+        //NOMBRE = Enum.GetName(typeof(Nombres), rnd.Next(1, Enum.GetNames(typeof(Nombres)).Length));
+        NOMBRE = nombre;
 
 
         FECHANACIMIENTO = DateTime.Now;
@@ -315,6 +356,48 @@ class Menu
     }
     #endregion
 }
+
+
+#region clases consumir api nombres
+public class ApiOwner
+{
+    [JsonPropertyName("author")]
+    public string Author { get; set; }
+
+    [JsonPropertyName("cafecito")]
+    public string Cafecito { get; set; }
+
+    [JsonPropertyName("instagram")]
+    public string Instagram { get; set; }
+
+    [JsonPropertyName("github")]
+    public string Github { get; set; }
+
+    [JsonPropertyName("linkedin")]
+    public string Linkedin { get; set; }
+
+    [JsonPropertyName("twitter")]
+    public string Twitter { get; set; }
+}
+
+public class Body
+{
+    [JsonPropertyName("name")]
+    public string Name { get; set; }
+
+    [JsonPropertyName("genre")]
+    public string Genre { get; set; }
+}
+
+public class Nombre
+{
+    [JsonPropertyName("api_owner")]
+    public ApiOwner ApiOwner { get; set; }
+
+    [JsonPropertyName("body")]
+    public Body Body { get; set; }
+}
+#endregion
 
 public enum TipoPersonaje
 {
