@@ -5,8 +5,41 @@ using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-string pathGanadoresCsv = @"C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\Archivos\ganadores.csv";
-string pathJugadoresJson = @"C:\TallerLenguajesC#\rpg-2022-SantiagoYalux\JuegoRol\JuegoRol\Archivos\Jugadores.json";
+
+Console.CursorVisible = false;
+
+var arr = new[]
+{
+            @"           _____________.  ___     .___     .___     ._____.   .____.     ",
+            @"           |            | /   \    |  |     |  |     |  ___|  |   _  |    ",
+            @"           `----|  |----`/  ^  \   |  |     |  |     | |___.  |  |_|  |   ",
+            @"                |  |    /  /_\  \  |  |     |  |     |  ___|  |    _   -. ",
+            @"                |  |   /  _____  \ |  ----. |  ----. | |___.  |   | |   |.",
+            @"                |__|  /__/     \__\|______| |______| | ____|  |__ | |__  |",
+            @"              .______       ______        ____     ______         ",
+            @"              |  .__  \   /  ____  \      |  |   /  ____  \       ",
+            @"              |  |  \  | |  |    |  |     |  |  |  |    |  |      ",
+            @"              |  |   | | |  |    |  |     | .|  |  |    |  |      ",
+            @"              |  |__/  | |  |____|  |  _./ ./   |  |____|  |      ",
+            @"              |______ /   \ ______ /  /___./     \ ______ /       ",
+};
+
+
+for (int i = 0; i < arr.Length; i++)
+{
+    Console.SetCursorPosition((Console.WindowWidth - arr[i].Length) / 2, Console.CursorTop);
+    Console.WriteLine(arr[i]);
+    Thread.Sleep(500);
+}
+
+
+
+
+string currentDirectory = getCurrentDirectory();
+
+
+string pathGanadoresCsv = currentDirectory + @"Archivos\ganadores.csv";
+string pathJugadoresJson = currentDirectory + @"Archivos\Jugadores.json";
 Random random = new Random();
 
 Personaje p1;
@@ -19,7 +52,7 @@ juego();
 
 void juego()
 {
-
+    
     //Si el archivo no existe lo creamos
     if (!File.Exists(pathGanadoresCsv))
     {
@@ -63,6 +96,40 @@ void juego()
 
 }
 
+//Utilizaremos este metodo para saber la ubicacion 
+string getCurrentDirectory()
+{
+    return (Directory.GetCurrentDirectory().Split("bin"))[0];
+}
+
+void IniciarCombate(ref List<Personaje> Personajes)
+{
+    do
+    {
+        indexPrimerJugador = random.Next(Personajes.Count);
+        do
+        {
+            indexSegundoJugador = random.Next(Personajes.Count);
+
+        } while (indexSegundoJugador == indexPrimerJugador);
+
+        p1 = Personajes.ElementAt(indexPrimerJugador);
+        p2 = Personajes.ElementAt(indexSegundoJugador);
+
+        Combate(ref p1, ref p2, ref Personajes);
+
+    } while (Personajes.Count > 1);
+
+    Console.WriteLine("\n");
+    Console.WriteLine("-------------------------------------------------------");
+    Console.WriteLine($"GANADOR DEL TORNEO = {Personajes.First().DATOS.NOMBRE}");
+    Personajes.First().MostrarDatos();
+    newData[0] = $"GANADOR DEL TORNEO = {Personajes.First().DATOS.NOMBRE}({Personajes.First().DATOS.TIPO}), FECHA {DateTime.Now.ToString("dddd")} {DateTime.Now}";
+    File.AppendAllLines(pathGanadoresCsv, newData);
+
+
+}
+
 void Combate(ref Personaje p1, ref Personaje p2, ref List<Personaje> personajes)
 {
     //
@@ -73,14 +140,14 @@ void Combate(ref Personaje p1, ref Personaje p2, ref List<Personaje> personajes)
     Console.WriteLine("* Empieza la pelea *");
     for (int i = 0; i < 3; i++)
     {
-        p1.Ataque(ref p2);
-        p2.Ataque(ref p1);
+        ataqueCombate(ref p1, ref p2);
+        ataqueCombate(ref p2, ref p1);
     }
 
     if (p1.DATOS.SALUD > p2.DATOS.SALUD)
     {
-        Console.WriteLine($"-----El ganador es {p1.DATOS.NOMBRE}-----");
-        p1.CARACTERISTICAS.FUERZA += 2;
+        Console.WriteLine($"-----El ganador es {p1.DATOS.NOMBRE} Recibe 10+ de fuerza -----");
+        p1.CARACTERISTICAS.FUERZA += 10;
 
 
         personajes.Remove(p2);
@@ -89,19 +156,36 @@ void Combate(ref Personaje p1, ref Personaje p2, ref List<Personaje> personajes)
     }
     else if (p1.DATOS.SALUD < p2.DATOS.SALUD)
     {
-        Console.WriteLine($"-----El ganador es {p2.DATOS.NOMBRE}-----");
-        p2.CARACTERISTICAS.FUERZA += 2;
+        Console.WriteLine($"-----El ganador es {p2.DATOS.NOMBRE} Recibe 10+ de fuerza -----");
+        p2.CARACTERISTICAS.FUERZA += 10;
 
         personajes.Remove(p1);
         newData[0] = $"{p2.DATOS.NOMBRE} vs {p1.DATOS.NOMBRE}// GANADOR = {p2.DATOS.NOMBRE}";
-        File.AppendAllLines(pathGanadoresCsv, newData);
     }
     else
     {
         Console.WriteLine("--------Empate--------");
     }
+
+    //Verificamos que no sea null, ya si es un empate no hay datos para agregar
+    if (string.IsNullOrEmpty(newData[0]))
+    {
+        File.AppendAllLines(pathGanadoresCsv, newData);
+    }
+
     Console.WriteLine("\n");
 
+}
+
+void ataqueCombate(ref Personaje p1, ref Personaje p2)
+{
+    Console.WriteLine("----------------------------");
+    Console.WriteLine($"- Ataca: {p1.DATOS.NOMBRE} vida {p1.DATOS.SALUD}");
+    Thread.Sleep(1000);
+    p1.Ataque(ref p2);
+    Thread.Sleep(1000);
+    Console.WriteLine($"- Vida Oponente {p2.DATOS.NOMBRE} después del ataque: {p2.DATOS.SALUD}");
+    Console.WriteLine("----------------------------");
 }
 
 void CargarPersonajesAnteriores(ref List<Personaje> Personajes)
@@ -143,33 +227,7 @@ void MostrarGanadores()
 
 }
 
-void IniciarCombate(ref List<Personaje> Personajes)
-{
-    do
-    {
-        indexPrimerJugador = random.Next(Personajes.Count);
-        do
-        {
-            indexSegundoJugador = random.Next(Personajes.Count);
 
-        } while (indexSegundoJugador == indexPrimerJugador);
-
-        p1 = Personajes.ElementAt(indexPrimerJugador);
-        p2 = Personajes.ElementAt(indexSegundoJugador);
-
-        Combate(ref p1, ref p2, ref Personajes);
-
-    } while (Personajes.Count > 1);
-
-    Console.WriteLine("\n");
-    Console.WriteLine("-------------------------------------------------------");
-    Console.WriteLine($"GANADOR DEL TORNEO = {Personajes.First().DATOS.NOMBRE}");
-    Personajes.First().MostrarDatos();
-    newData[0] = $"GANADOR DEL TORNEO = {Personajes.First().DATOS.NOMBRE}({Personajes.First().DATOS.TIPO}), FECHA {DateTime.Now}";
-    File.AppendAllLines(pathGanadoresCsv, newData);
-
-
-}
 
 List<Personaje> CrearPersonajes()
 {
@@ -222,6 +280,11 @@ string RecuperarNombre()
 
     return retorno;
 }
+
+#region animacion
+
+
+#endregion
 
 class Personaje
 {
@@ -513,3 +576,4 @@ public enum Nombres
     Zigor,
     Zouhair,
 }
+
