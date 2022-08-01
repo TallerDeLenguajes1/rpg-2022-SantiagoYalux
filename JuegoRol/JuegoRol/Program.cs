@@ -8,29 +8,29 @@ using System.Text.Json.Serialization;
 
 Console.CursorVisible = false;
 
-var arr = new[]
-{
-            @"           _____________.  ___     .___     .___     ._____.   .____.     ",
-            @"           |            | /   \    |  |     |  |     |  ___|  |   _  |    ",
-            @"           `----|  |----`/  ^  \   |  |     |  |     | |___.  |  |_|  |   ",
-            @"                |  |    /  /_\  \  |  |     |  |     |  ___|  |    _   -. ",
-            @"                |  |   /  _____  \ |  ----. |  ----. | |___.  |   | |   |.",
-            @"                |__|  /__/     \__\|______| |______| | ____|  |__ | |__  |",
-            @"              .______       ______        ____     ______         ",
-            @"              |  .__  \   /  ____  \      |  |   /  ____  \       ",
-            @"              |  |  \  | |  |    |  |     |  |  |  |    |  |      ",
-            @"              |  |   | | |  |    |  |     | .|  |  |    |  |      ",
-            @"              |  |__/  | |  |____|  |  _./ ./   |  |____|  |      ",
-            @"              |______ /   \ ______ /  /___./     \ ______ /       ",
-};
+//var arr = new[]
+//{
+//            @"           _____________.  ___     .___     .___     ._____.   .____.     ",
+//            @"           |            | /   \    |  |     |  |     |  ___|  |   _  |    ",
+//            @"           `----|  |----`/  ^  \   |  |     |  |     | |___.  |  |_|  |   ",
+//            @"                |  |    /  /_\  \  |  |     |  |     |  ___|  |    _   -. ",
+//            @"                |  |   /  _____  \ |  ----. |  ----. | |___.  |   | |   |.",
+//            @"                |__|  /__/     \__\|______| |______| | ____|  |__ | |__  |",
+//            @"              .______       ______        ____     ______         ",
+//            @"              |  .__  \   /  ____  \      |  |   /  ____  \       ",
+//            @"              |  |  \  | |  |    |  |     |  |  |  |    |  |      ",
+//            @"              |  |   | | |  |    |  |     | .|  |  |    |  |      ",
+//            @"              |  |__/  | |  |____|  |  _./ ./   |  |____|  |      ",
+//            @"              |______ /   \ ______ /  /___./     \ ______ /       ",
+//};
 
 
-for (int i = 0; i < arr.Length; i++)
-{
-    Console.SetCursorPosition((Console.WindowWidth - arr[i].Length) / 2, Console.CursorTop);
-    Console.WriteLine(arr[i]);
-    Thread.Sleep(500);
-}
+//for (int i = 0; i < arr.Length; i++)
+//{
+//    Console.SetCursorPosition((Console.WindowWidth - arr[i].Length) / 2, Console.CursorTop);
+//    Console.WriteLine(arr[i]);
+//    Thread.Sleep(500);
+//}
 
 
 
@@ -38,13 +38,15 @@ for (int i = 0; i < arr.Length; i++)
 string currentDirectory = getCurrentDirectory();
 
 
-string pathGanadoresCsv = currentDirectory + @"Archivos\ganadores.csv";
+string pathGanadoresTxt = currentDirectory + @"Archivos\ganadores.txt";
 string pathJugadoresJson = currentDirectory + @"Archivos\Jugadores.json";
+string pathGanadoresTorneoCsv = currentDirectory + @"Archivos\ganadoresTorneo.csv";
 Random random = new Random();
 
 Personaje p1;
 Personaje p2;
 string[] newData = new string[1];
+string[] newDataCsv = new string[1];
 int indexPrimerJugador = 0;
 int indexSegundoJugador = 0;
 
@@ -54,10 +56,10 @@ void juego()
 {
     
     //Si el archivo no existe lo creamos
-    if (!File.Exists(pathGanadoresCsv))
-    {
-        File.Create(pathGanadoresCsv);
-    }
+    if (!File.Exists(pathGanadoresTxt)) 
+        File.Create(pathGanadoresTxt);
+    if (!File.Exists(pathGanadoresTorneoCsv))
+        File.Create(pathGanadoresTorneoCsv);
 
     List<Personaje> Personajes = CrearPersonajes();
 
@@ -87,7 +89,18 @@ void juego()
                 Console.Clear();
                 IniciarCombate(ref Personajes);
                 Personajes = CrearPersonajes();
-                Console.WriteLine("Nuevos Personajes Listos para pelear");
+                Console.WriteLine("\n-----Nuevos Personajes Listos para pelear-----");
+                Console.ReadKey();
+                break;            
+            case ConsoleKey.D:
+                Console.Clear();
+
+                foreach (var Personaje in Personajes)
+                {
+                    Personaje.MostrarDatos();
+                    Console.WriteLine("\n");
+                }
+
                 Console.ReadKey();
                 break;
 
@@ -121,13 +134,17 @@ void IniciarCombate(ref List<Personaje> Personajes)
     } while (Personajes.Count > 1);
 
     Console.WriteLine("\n");
+
+
     Console.WriteLine("-------------------------------------------------------");
-    Console.WriteLine($"GANADOR DEL TORNEO = {Personajes.First().DATOS.NOMBRE}");
-    Personajes.First().MostrarDatos();
-    newData[0] = $"GANADOR DEL TORNEO = {Personajes.First().DATOS.NOMBRE}({Personajes.First().DATOS.TIPO}), FECHA {DateTime.Now.ToString("dddd")} {DateTime.Now}";
-    File.AppendAllLines(pathGanadoresCsv, newData);
+    Personaje ganador = Personajes.First();
+    Console.WriteLine($"GANADOR DEL TORNEO = {ganador.NOMBRE}|");
+    ganador.MostrarDatos();
 
-
+    newData[0] = $"GANADOR DEL TORNEO = {ganador.NOMBRE}({ganador.TIPO}), FECHA {DateTime.Now.ToString("dddd")} {DateTime.Now}";
+    newDataCsv[0] = $"{ganador.NOMBRE},{ganador.TIPO},{ganador.EDAD}, {ganador.FUERZA}, {ganador.NIVEL}";
+    File.AppendAllLines(pathGanadoresTxt, newData);
+    File.AppendAllLines(pathGanadoresTorneoCsv, newDataCsv);
 }
 
 void Combate(ref Personaje p1, ref Personaje p2, ref List<Personaje> personajes)
@@ -135,7 +152,7 @@ void Combate(ref Personaje p1, ref Personaje p2, ref List<Personaje> personajes)
     //
     string[] newData = new string[1];
 
-    Console.WriteLine($"\n//////{p1.DATOS.NOMBRE} VS {p2.DATOS.NOMBRE}///////");
+    Console.WriteLine($"\n//////{p1.NOMBRE} VS {p2.NOMBRE}///////");
     //Realizamos el combate, el que pierda será eliminado de la lista
     Console.WriteLine("* Empieza la pelea *");
     for (int i = 0; i < 3; i++)
@@ -144,23 +161,22 @@ void Combate(ref Personaje p1, ref Personaje p2, ref List<Personaje> personajes)
         ataqueCombate(ref p2, ref p1);
     }
 
-    if (p1.DATOS.SALUD > p2.DATOS.SALUD)
+    if (p1.SALUD > p2.SALUD)
     {
-        Console.WriteLine($"-----El ganador es {p1.DATOS.NOMBRE} Recibe 10+ de fuerza -----");
-        p1.CARACTERISTICAS.FUERZA += 10;
+        Console.WriteLine($"-----El ganador es {p1.NOMBRE} Recibe 10+ de fuerza -----");
+        p1.FUERZA += 10;
 
 
+        newData[0] = $"{p1.NOMBRE} vs {p2.NOMBRE}// GANADOR = {p1.NOMBRE}";
         personajes.Remove(p2);
-        newData[0] = $"{p1.DATOS.NOMBRE} vs {p2.DATOS.NOMBRE}// GANADOR = {p1.DATOS.NOMBRE}";
-        File.AppendAllLines(pathGanadoresCsv, newData);
     }
-    else if (p1.DATOS.SALUD < p2.DATOS.SALUD)
+    else if (p1.SALUD < p2.SALUD)
     {
-        Console.WriteLine($"-----El ganador es {p2.DATOS.NOMBRE} Recibe 10+ de fuerza -----");
-        p2.CARACTERISTICAS.FUERZA += 10;
+        Console.WriteLine($"-----El ganador es {p2.NOMBRE} Recibe 10+ de fuerza -----");
+        p2.FUERZA += 10;
 
+        newData[0] = $"{p2.NOMBRE} vs {p1.NOMBRE}// GANADOR = {p2.NOMBRE}";
         personajes.Remove(p1);
-        newData[0] = $"{p2.DATOS.NOMBRE} vs {p1.DATOS.NOMBRE}// GANADOR = {p2.DATOS.NOMBRE}";
     }
     else
     {
@@ -168,9 +184,9 @@ void Combate(ref Personaje p1, ref Personaje p2, ref List<Personaje> personajes)
     }
 
     //Verificamos que no sea null, ya si es un empate no hay datos para agregar
-    if (string.IsNullOrEmpty(newData[0]))
+    if (newData[0] != null)
     {
-        File.AppendAllLines(pathGanadoresCsv, newData);
+        File.AppendAllLines(pathGanadoresTxt, newData);
     }
 
     Console.WriteLine("\n");
@@ -180,11 +196,11 @@ void Combate(ref Personaje p1, ref Personaje p2, ref List<Personaje> personajes)
 void ataqueCombate(ref Personaje p1, ref Personaje p2)
 {
     Console.WriteLine("----------------------------");
-    Console.WriteLine($"- Ataca: {p1.DATOS.NOMBRE} vida {p1.DATOS.SALUD}");
-    Thread.Sleep(1000);
+    Console.WriteLine($"- Ataca: '{p1.NOMBRE.ToUpper()}' vida '{p1.SALUD}'");
+    //Thread.Sleep(1000);
     p1.Ataque(ref p2);
-    Thread.Sleep(1000);
-    Console.WriteLine($"- Vida Oponente {p2.DATOS.NOMBRE} después del ataque: {p2.DATOS.SALUD}");
+    //Thread.Sleep(1000);
+    Console.WriteLine($"- Vida Oponente: '{p2.NOMBRE.ToUpper()}' después del ataque: '{p2.SALUD}'");
     Console.WriteLine("----------------------------");
 }
 
@@ -203,21 +219,32 @@ void CargarPersonajesAnteriores(ref List<Personaje> Personajes)
         eleccion = int.Parse(Console.ReadLine());
 
         if (eleccion == 1)
-            Personajes = JsonSerializer.Deserialize<List<Personaje>>(datosJugadoresJson);
+        {
+            try
+            {
+                Personajes = JsonSerializer.Deserialize<List<Personaje>>(datosJugadoresJson);
+                Console.WriteLine("PERSONAJES ANTERIORES CARGADOS");
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("no podemos leer los persoanjes que contiene el archivo");
+               throw;
+            }
+        }
         else
-            Console.WriteLine("Elegiste no cambiar a los jugadores anteriores, los nuevos darán batalla");
+            Console.WriteLine("Elegiste no cambiar a los jugadores anteriores, los nuevos pelearan");
     }
     else
     {
         string JsonString = JsonSerializer.Serialize(Personajes);
         File.WriteAllText(pathJugadoresJson, JsonString);
-        Console.WriteLine("No tienes jugadores previos, cargamos los personajes actuales, para en un futuro usarlos!");
+        Console.WriteLine("No tienes jugadores anteriores, guardamos los jugadores actuales para en un futuro usarlos!");
     }
 }
 
 void MostrarGanadores()
 {
-    string ganadoresString = File.ReadAllText(pathGanadoresCsv);
+    string ganadoresString = File.ReadAllText(pathGanadoresTxt);
     if (ganadoresString.Length > 0)
     {
         Console.WriteLine(ganadoresString);
@@ -284,59 +311,13 @@ string RecuperarNombre()
 class Personaje
 {
 
-    private Caracteristicas caracteristicas;
-    private Datos datos;
 
-    public Caracteristicas CARACTERISTICAS { get => caracteristicas; set => caracteristicas = value; }
-    public Datos DATOS { get => datos; set => datos = value; }
+    //Datos
+    private string tipo;
+    private string nombre;
+    private int edad; //Entre 0 a 300
+    private int salud;
 
-    public Personaje(string nombre)
-    {
-        CARACTERISTICAS = new Caracteristicas();
-        DATOS = new Datos(nombre);
-    }
-
-
-    //Habilidades del personaje
-    public void Ataque(ref Personaje Enemigo)
-    {
-        Random rnd = new Random();
-        double poderDisparo = CARACTERISTICAS.DESTREZA * CARACTERISTICAS.FUERZA * CARACTERISTICAS.NIVEL;
-        double EfectividadDisparo = ((double)rnd.Next(1, 100)) / 100;
-        double valorAtaque = poderDisparo * EfectividadDisparo;
-        double poderDefensa = Enemigo.CARACTERISTICAS.ARMADURA * Enemigo.CARACTERISTICAS.VELOCIDAD;
-        double MaximoDaño = 5000;
-        double dañoProvocado = (((valorAtaque * EfectividadDisparo) - poderDefensa) / MaximoDaño) * 100;
-
-        if (dañoProvocado < 1)
-            dañoProvocado = 1;
-
-        Enemigo.DATOS.SALUD -= (int)dañoProvocado;
-    }
-
-
-    public void MostrarDatos()
-    {
-        Console.WriteLine("--------Datos Personaje--------");
-        Console.WriteLine("Nombre: " + DATOS.NOMBRE);
-        Console.WriteLine("Tipo " + DATOS.TIPO.ToString());
-        Console.WriteLine("Fecha Nacimiento: " + DATOS.FECHANACIMIENTO.ToString());
-        Console.WriteLine("Edad: " + DATOS.EDAD.ToString());
-        Console.WriteLine("Salud: " + DATOS.SALUD.ToString());
-
-        Console.WriteLine("------caracteristicas--------");
-        Console.WriteLine("Velocidad: " + CARACTERISTICAS.VELOCIDAD);
-        Console.WriteLine("Destreza: " + CARACTERISTICAS.DESTREZA);
-        Console.WriteLine("Fuerza: " + CARACTERISTICAS.FUERZA);
-        Console.WriteLine("Nivel: " + CARACTERISTICAS.NIVEL);
-        Console.WriteLine("Armadura: " + CARACTERISTICAS.ARMADURA);
-
-    }
-
-}
-
-class Caracteristicas
-{
     //Caracteristicas 
     private int Velocidad; // 1 a 10
     private int Destreza; //1 a 5
@@ -349,8 +330,12 @@ class Caracteristicas
     public int FUERZA { get => Fuerza; set => Fuerza = value; }
     public int NIVEL { get => Nivel; set => Nivel = value; }
     public int ARMADURA { get => Armadura; set => Armadura = value; }
+    public string TIPO { get => tipo; set => tipo = value; }
+    public string NOMBRE { get => nombre; set => nombre = value; }
+    public int EDAD { get => edad; set => edad = value; }
+    public int SALUD { get => salud; set => salud = value; }
 
-    public Caracteristicas()
+    public Personaje(string nombre)
     {
         Random rnd = new Random();
 
@@ -360,43 +345,54 @@ class Caracteristicas
         NIVEL = rnd.Next(1, 11);
         ARMADURA = rnd.Next(1, 11);
 
-    }
-
-}
-
-class Datos
-{
-    //Datos
-    private string tipo;
-    private string nombre;
-    private DateTime fechaNacimiento;
-    private int edad; //Entre 0 a 300
-    private int salud;
-
-    public string TIPO { get => tipo; set => tipo = value; }
-    public string NOMBRE { get => nombre; set => nombre = value; }
-    public DateTime FECHANACIMIENTO { get => fechaNacimiento; set => fechaNacimiento = value; }
-    public int EDAD { get => edad; set => edad = value; }
-    public int SALUD { get => salud; set => salud = value; }
-
-    public Datos(string nombre)
-    {
-        Random rnd = new Random();
-
-
         TIPO = Enum.GetName(typeof(TipoPersonaje), rnd.Next(1, Enum.GetNames(typeof(TipoPersonaje)).Length));
 
         //NOMBRE = Enum.GetName(typeof(Nombres), rnd.Next(1, Enum.GetNames(typeof(Nombres)).Length));
         NOMBRE = nombre;
 
-        FECHANACIMIENTO = DateTime.Now;
-
         EDAD = rnd.Next(0, 300);
 
         SALUD = 100;
+    }
+
+
+    //Habilidades del personaje
+    public void Ataque(ref Personaje Enemigo)
+    {
+        Random rnd = new Random();
+        double poderDisparo = DESTREZA * FUERZA * NIVEL;
+        double EfectividadDisparo = ((double)rnd.Next(1, 100)) / 100;
+        double valorAtaque = poderDisparo * EfectividadDisparo;
+        double poderDefensa = Enemigo.ARMADURA * Enemigo.VELOCIDAD;
+        double MaximoDaño = 5000;
+        double dañoProvocado = (((valorAtaque * EfectividadDisparo) - poderDefensa) / MaximoDaño) * 100;
+
+        if (dañoProvocado < 1)
+            dañoProvocado = 1;
+
+        Enemigo.SALUD -= (int)dañoProvocado;
+    }
+
+
+    public void MostrarDatos()
+    {
+        Console.WriteLine("--------Datos Personaje--------");
+        Console.WriteLine("Nombre: " + NOMBRE);
+        Console.WriteLine("Tipo " + TIPO.ToString());
+        Console.WriteLine("Edad: " + EDAD.ToString());
+        Console.WriteLine("Salud: " + SALUD.ToString());
+
+        Console.WriteLine("------caracteristicas--------");
+        Console.WriteLine("Velocidad: " + VELOCIDAD);
+        Console.WriteLine("Destreza: " + DESTREZA);
+        Console.WriteLine("Fuerza: " + FUERZA);
+        Console.WriteLine("Nivel: " + NIVEL);
+        Console.WriteLine("Armadura: " + ARMADURA);
 
     }
+
 }
+
 
 class Menu
 {
@@ -406,8 +402,9 @@ class Menu
         Console.Clear();
         Console.WriteLine("*************************");
         Console.WriteLine("A- Mostrar Ganadores \n");
-        Console.WriteLine("B- Cargar jugadores json\n");
+        Console.WriteLine("B- Cargar jugadores anteriores\n");
         Console.WriteLine("C- Iniciar combate\n");
+        Console.WriteLine("D- Mostrar jugadores por luchar\n");
         Console.WriteLine("F- Salir\n");
         Console.WriteLine("*************************");
     }
@@ -461,5 +458,8 @@ public enum TipoPersonaje
     Arquero,
     Guerrero,
     Valkiria,
-    Vikingo
+    Vikingo,
+    Luchador,
+    Bandido,
+    Vaquero
 }
