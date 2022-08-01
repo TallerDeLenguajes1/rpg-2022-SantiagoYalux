@@ -211,7 +211,7 @@ void CargarPersonajesAnteriores(ref List<Personaje> Personajes)
     {
         string JsonString = JsonSerializer.Serialize(Personajes);
         File.WriteAllText(pathJugadoresJson, JsonString);
-        Console.WriteLine("Cargamos los personajes actuales, para en un futuro usarlos!");
+        Console.WriteLine("No tienes jugadores previos, cargamos los personajes actuales, para en un futuro usarlos!");
     }
 }
 
@@ -280,11 +280,6 @@ string RecuperarNombre()
 
     return retorno;
 }
-
-#region animacion
-
-
-#endregion
 
 class Personaje
 {
@@ -394,7 +389,6 @@ class Datos
         //NOMBRE = Enum.GetName(typeof(Nombres), rnd.Next(1, Enum.GetNames(typeof(Nombres)).Length));
         NOMBRE = nombre;
 
-
         FECHANACIMIENTO = DateTime.Now;
 
         EDAD = rnd.Next(0, 300);
@@ -469,111 +463,3 @@ public enum TipoPersonaje
     Valkiria,
     Vikingo
 }
-
-public enum Nombres
-{
-    Santiago,
-    Sergio,
-    Josefina,
-    Agustina,
-    Mariana,
-    Messi,
-    Roberto,
-    LuisMiguel,
-    Amets,
-    Amaro,
-    Aquiles,
-    Algimantas,
-    Alpidio,
-    Amrane,
-    Anish,
-    Arián,
-    Ayun,
-    Azariel,
-    Bagrat,
-    Bencomo,
-    Bertino,
-    Candi,
-    Cesc,
-    Cirino,
-    Crisólogo,
-    Cruz,
-    Danilo,
-    Dareck,
-    Dariel,
-    Darin,
-    Delmiro,
-    Damen,
-    Dilan,
-    Dipa,
-    Doménico,
-    Drago,
-    Edivaldo,
-    Elvis,
-    Elyan,
-    Emeric,
-    Engracio,
-    Ensa,
-    Eñaut,
-    Eleazar,
-    Eros,
-    Eufemio,
-    Feiyang,
-    Fiorenzo,
-    Foudil,
-    Galo,
-    Gastón,
-    Giulio,
-    Gautam,
-    Gentil,
-    Gianni,
-    Gianluca,
-    Giorgio,
-    Gourav,
-    Grober,
-    Guido,
-    Guifre,
-    Guim,
-    Hermes,
-    Inge,
-    Irai,
-    Iraitz,
-    Iyad,
-    Iyán,
-    Joao,
-    Jun,
-    Khaled,
-    Leónidas,
-    Lier,
-    Lionel,
-    Lisandro,
-    Lucián,
-    Mael,
-    Misael,
-    Moad,
-    Munir,
-    Nael,
-    Najim,
-    Neo,
-    Neil,
-    Nikita,
-    Nilo,
-    Otto,
-    Pep,
-    Policarpo,
-    Radu,
-    Ramsés,
-    Rómulo,
-    Roy,
-    Severo,
-    Sidi,
-    Simeón,
-    Taha,
-    Tao,
-    Vadim,
-    Vincenzo,
-    Zaid,
-    Zigor,
-    Zouhair,
-}
-
